@@ -203,11 +203,99 @@ button:active {
 
 #project.show {
   display: block;
-  animation: appear .35s ease;
+  animation: pageZoomIn .4s cubic-bezier(.16, 1, .3, 1);
 }
 
 #intro.hide {
   display: none;
+}
+
+@keyframes pageZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(.15);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Workspace zoom-in animation */
+#embeddedWorkspace {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #080b12;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0;
+  transform-origin: center center;
+  opacity: 0;
+}
+
+#embeddedWorkspace.open {
+  display: flex;
+  animation: workspaceZoomIn .45s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+
+#embeddedWorkspace.closing {
+  display: flex;
+  animation: workspaceZoomOut .3s ease forwards;
+}
+
+.workspace-toolbar {
+  padding: 14px 5%;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #ffffff12;
+  background: #080b12;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+#workspaceFrame {
+  display: block;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border: 0;
+  background: #080b12;
+}
+
+@keyframes workspaceZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(.12);
+    border-radius: 40px;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    border-radius: 0;
+  }
+}
+
+@keyframes workspaceZoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    border-radius: 0;
+  }
+  to {
+    opacity: 0;
+    transform: scale(.12);
+    border-radius: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #embeddedWorkspace.open,
+  #embeddedWorkspace.closing {
+    animation-duration: .01ms !important;
+  }
 }
 
 footer {
@@ -249,10 +337,144 @@ footer {
     padding: 50px 7%;
   }
 }
+
+/* Welcome intro */
+#ktpWelcome {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+  transition: opacity .7s ease, visibility .7s ease;
+}
+#ktpWelcome.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#ktpWelcome::before {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: var(--accent);
+  filter: blur(120px);
+  opacity: .15;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: welcomeGlow 2.8s ease-in-out infinite alternate;
+}
+.ktp-welcome-content {
+  text-align: center;
+  padding: 24px;
+  max-width: 90vw;
+  position: relative;
+  z-index: 1;
+}
+.ktp-welcome-kicker {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  font-weight: 800;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: welcomeIn .7s ease .15s forwards;
+}
+.ktp-welcome-title {
+  font-size: clamp(32px, 8vw, 64px);
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  margin: 22px 0 0;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: welcomeIn .8s ease .4s forwards;
+}
+.ktp-welcome-title span {
+  color: var(--accent);
+  display: inline-block;
+}
+.ktp-welcome-line {
+  width: 0;
+  height: 3px;
+  background: var(--accent);
+  margin: 28px auto 0;
+  border-radius: 2px;
+  animation: welcomeLine .7s ease .9s forwards;
+}
+.ktp-welcome-loading {
+  margin-top: 28px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  opacity: 0;
+  animation: welcomeIn .6s ease 1.2s forwards, welcomePulse 1.4s ease 1.8s infinite;
+}
+@keyframes welcomeIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes welcomeLine { to { width: 72px; } }
+@keyframes welcomePulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+@keyframes welcomeGlow {
+  from { opacity: .1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: .22; transform: translate(-50%, -50%) scale(1.15); }
+}
+body.welcome-lock { overflow: hidden; }
+body.welcome-lock nav,
+body.welcome-lock main,
+body.welcome-lock footer,
+body.welcome-lock .glow {
+  opacity: 0;
+  pointer-events: none;
+}
+body:not(.welcome-lock) nav,
+body:not(.welcome-lock) main,
+body:not(.welcome-lock) footer,
+body:not(.welcome-lock) .glow {
+  animation: mainReveal .65s ease both;
+}
+@keyframes mainReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ktpWelcome::before,
+  .ktp-welcome-kicker,
+  .ktp-welcome-title,
+  .ktp-welcome-line,
+  .ktp-welcome-loading {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    width: 72px;
+  }
+  body:not(.welcome-lock) nav,
+  body:not(.welcome-lock) main,
+  body:not(.welcome-lock) footer,
+  body:not(.welcome-lock) .glow {
+    animation: none !important;
+  }
+}
 </style>
 </head>
 
 <body>
+
+<div id="ktpWelcome">
+  <div class="ktp-welcome-content">
+    <div class="ktp-welcome-kicker">PERSONAL PROJECT • EST. KING TRI</div>
+    <div class="ktp-welcome-title">WELCOME TO<br><span>KING TRI PROJECT</span></div>
+    <div class="ktp-welcome-line"></div>
+    <div class="ktp-welcome-loading">PREPARING YOUR EXPERIENCE</div>
+  </div>
+</div>
 
 <div class="glow"></div>
 
@@ -356,8 +578,8 @@ footer {
 </main>
 
 
-<section id="embeddedWorkspace" style="display:none;position:relative;z-index:3;min-height:80vh;padding:0 0 30px">
-  <div style="padding:18px 7%;display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #ffffff12">
+<section id="embeddedWorkspace">
+  <div class="workspace-toolbar">
     <button class="secondary" onclick="showPortfolioProjects()">← Kembali ke Project</button>
     <button class="secondary" onclick="openWebProjects()">Web Development</button>
     <button class="secondary" onclick="openCreativeDesign()">Creative Design</button>
@@ -365,7 +587,7 @@ footer {
     <button class="secondary" onclick="openMyWeb()">04 / My Web</button>
     <button class="primary" onclick="openKinggsTools()">Buka KINGGS Tools</button>
   </div>
-  <iframe id="workspaceFrame" title="KING TRI PROJECT workspace" style="display:block;width:100%;height:calc(100vh - 95px);min-height:650px;border:0;background:#080b12" sandbox="allow-scripts allow-forms allow-same-origin allow-downloads allow-modals allow-popups"></iframe>
+  <iframe id="workspaceFrame" title="KING TRI PROJECT workspace" sandbox="allow-scripts allow-forms allow-same-origin allow-downloads allow-modals allow-popups"></iframe>
 </section>
 
 <footer>
@@ -381,6 +603,8 @@ document.getElementById("year").textContent =
 
 function enterProject() {
   intro.classList.add("hide");
+  project.classList.remove("show");
+  void project.offsetWidth;
   project.classList.add("show");
   window.scrollTo({ top: 0, behavior: "instant" });
 }
@@ -397,6 +621,23 @@ function aboutMe() {
     block: "start"
   });
 }
+
+/* Welcome intro */
+(function () {
+  const welcome = document.getElementById("ktpWelcome");
+  if (!welcome) return;
+  document.body.classList.add("welcome-lock");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const holdMs = reduced ? 600 : 2800;
+  const fadeMs = reduced ? 200 : 700;
+  setTimeout(() => {
+    welcome.classList.add("done");
+    document.body.classList.remove("welcome-lock");
+    setTimeout(() => {
+      if (welcome.parentNode) welcome.remove();
+    }, fadeMs + 50);
+  }, holdMs);
+})();
 </script>
 
 
@@ -407,9 +648,15 @@ const kinggsToolsDocument = "<!DOCTYPE html>\n<html lang=\"id\">\n<head>\n<meta 
 function openWorkspace(doc) {
   document.getElementById('intro').classList.add('hide');
   document.getElementById('project').classList.remove('show');
-  document.getElementById('embeddedWorkspace').style.display = 'block';
+  const ws = document.getElementById('embeddedWorkspace');
   const frame = document.getElementById('workspaceFrame');
   frame.srcdoc = doc;
+  ws.classList.remove('closing');
+  // restart zoom animation even if already open
+  ws.classList.remove('open');
+  void ws.offsetWidth;
+  ws.classList.add('open');
+  document.body.style.overflow = 'hidden';
   window.scrollTo({top:0, behavior:'auto'});
 }
 function openWebProjects(){ openWorkspace(webProjectsDocument); }
@@ -454,10 +701,22 @@ function openClassWebsite(){ openWorkspace(classWebsiteDocument); }
 function openMyWeb(){ openWorkspace(myWebDocument); }
 function openKinggsTools(){ openWorkspace(kinggsToolsDocument); }
 function showPortfolioProjects(){
-  document.getElementById('embeddedWorkspace').style.display='none';
-  document.getElementById('intro').classList.add('hide');
-  document.getElementById('project').classList.add('show');
-  window.scrollTo({top:0,behavior:'auto'});
+  const ws = document.getElementById('embeddedWorkspace');
+  ws.classList.remove('open');
+  ws.classList.add('closing');
+  const finish = () => {
+    ws.classList.remove('closing');
+    document.body.style.overflow = '';
+    document.getElementById('intro').classList.add('hide');
+    document.getElementById('project').classList.add('show');
+    window.scrollTo({top:0,behavior:'auto'});
+  };
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) {
+    finish();
+  } else {
+    setTimeout(finish, 280);
+  }
 }
 window.addEventListener('message', event => {
   if(event.data === 'KING_TRI_OPEN_TOOLS') openKinggsTools();
